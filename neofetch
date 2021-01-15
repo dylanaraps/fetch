@@ -81,7 +81,8 @@ print_info() {
     # info "Song" song
     # [[ "$player" ]] && prin "Music Player" "$player"
     # info "Local IP" local_ip
-    # info "Public IP" public_ip
+    # info "Public IPv4" public_ipv4
+    # info "Public IPv6" public_ipv6
     # info "Users" users
     # info "Locale" locale  # This only works on glibc systems.
 
@@ -393,19 +394,33 @@ gtk3="on"
 # IP Address
 
 
-# Website to ping for the public IP
+# Website to ping for the public IPv4
 #
-# Default: 'http://ident.me'
+# Default: 'http://ipv4.ident.me'
 # Values:  'url'
-# Flag:    --ip_host
-public_ip_host="http://ident.me"
+# Flag:    --ipv4_host
+public_ipv4_host="http://ipv4.ident.me"
 
-# Public IP timeout.
+# Public IPv4 timeout.
 #
 # Default: '2'
 # Values:  'int'
-# Flag:    --ip_timeout
-public_ip_timeout=2
+# Flag:    --ipv4_timeout
+public_ipv4_timeout=2
+
+# Website to ping for the public IPv6
+#
+# Default: 'http://ipv6.ident.me'
+# Values:  'url'
+# Flag:    --ipv6_host
+public_ipv6_host="http://ipv6.ident.me"
+
+# Public IPv6 timeout.
+#
+# Default: '2'
+# Values:  'int'
+# Flag:    --ipv6_timeout
+public_ipv6_timeout=2
 
 # Local IP interface
 #
@@ -3805,23 +3820,43 @@ get_local_ip() {
     esac
 }
 
-get_public_ip() {
+get_public_ipv4() {
     if type -p dig >/dev/null; then
-        public_ip="$(dig +time=1 +tries=1 +short myip.opendns.com @resolver1.opendns.com)"
-       [[ "$public_ip" =~ ^\; ]] && unset public_ip
+        public_ipv4="$(dig +time=1 +tries=1 +short myip.opendns.com @resolver1.opendns.com)"
+       [[ "$public_ipv4" =~ ^\; ]] && unset public_ipv4
     fi
 
-    if [[ -z "$public_ip" ]] && type -p drill >/dev/null; then
-        public_ip="$(drill myip.opendns.com @resolver1.opendns.com | \
+    if [[ -z "$public_ipv4" ]] && type -p drill >/dev/null; then
+        public_ipv4="$(drill myip.opendns.com @resolver1.opendns.com | \
                      awk '/^myip\./ && $3 == "IN" {print $5}')"
     fi
 
-    if [[ -z "$public_ip" ]] && type -p curl >/dev/null; then
-        public_ip="$(curl --max-time "$public_ip_timeout" -w '\n' "$public_ip_host")"
+    if [[ -z "$public_ipv4" ]] && type -p curl >/dev/null; then
+        public_ipv4="$(curl --max-time "$public_ipv4_timeout" -w '\n' "$public_ipv4_host")"
     fi
 
-    if [[ -z "$public_ip" ]] && type -p wget >/dev/null; then
-        public_ip="$(wget -T "$public_ip_timeout" -qO- "$public_ip_host")"
+    if [[ -z "$public_ipv4" ]] && type -p wget >/dev/null; then
+        public_ipv4="$(wget -T "$public_ipv4_timeout" -qO- "$public_ipv4_host")"
+    fi
+}
+
+get_public_ipv6() {
+    if type -p dig >/dev/null; then
+        public_ipv6="$(dig +time=1 +tries=1 +short myip.opendns.com @resolver1.opendns.com)"
+       [[ "$public_ipv6" =~ ^\; ]] && unset public_ipv6
+    fi
+
+    if [[ -z "$public_ipv6" ]] && type -p drill >/dev/null; then
+        public_ipv6="$(drill myip.opendns.com @resolver1.opendns.com | \
+                     awk '/^myip\./ && $3 == "IN" {print $5}')"
+    fi
+
+    if [[ -z "$public_ipv6" ]] && type -p curl >/dev/null; then
+        public_ipv6="$(curl --max-time "$public_ipv6_timeout" -w '\n' "$public_ipv6_host")"
+    fi
+
+    if [[ -z "$public_ipv6" ]] && type -p wget >/dev/null; then
+        public_ipv6="$(wget -T "$public_ipv6_timeout" -qO- "$public_ipv6_host")"
     fi
 }
 
@@ -4967,8 +5002,10 @@ INFO:
 
     --disk_percent on/off       Hide/Show disk percent.
 
-    --ip_host url               URL to query for public IP
-    --ip_timeout int            Public IP timeout (in seconds).
+    --ipv4_host url               URL to query for public IPv4
+    --ipv6_host url               URL to query for public IPv6
+    --ipv4_timeout int            Public IPv4 timeout (in seconds).
+    --ipv6_timeout int            Public IPv6 timeout (in seconds).
     --ip_interface value        Interface(s) to use for local IP
     --song_format format        Print the song data in a specific format (see config file).
     --song_shorthand on/off     Print the Artist/Album/Title on separate lines.
@@ -5165,8 +5202,10 @@ get_args() {
             "--gtk3") gtk3="$2" ;;
             "--shell_path") shell_path="$2" ;;
             "--shell_version") shell_version="$2" ;;
-            "--ip_host") public_ip_host="$2" ;;
-            "--ip_timeout") public_ip_timeout="$2" ;;
+            "--ipv4_host") public_ipv4_host="$2" ;;
+            "--ipv6_host") public_ipv6_host="$2" ;;
+            "--ipv4_timeout") public_ipv4_timeout="$2" ;;
+            "--ipv6_timeout") public_ipv6_timeout="$2" ;;
             "--ip_interface")
                 unset local_ip_interface
                 for arg in "$@"; do
@@ -5374,7 +5413,8 @@ get_args() {
                     info "Font" font
                     info "Song" song
                     info "Local IP" local_ip
-                    info "Public IP" public_ip
+                    info "Public IPv4" public_ipv4
+                    info "Public IPv6" public_ipv6
                     info "Users" users
 
                     info cols
