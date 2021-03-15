@@ -10665,6 +10665,31 @@ ${c3}             `${c4} :EEEEtttt::::z7
 EOF
         ;;
 
+	    "Xeonix"*)
+	        set_colors 7
+	        read -rd '' ascii_data <<'EOF'
+${c1}                                         . 
+                .'c,.                  .,c'
+                .dWXd,.              .,dXWx.
+               .cXMMWXd,.          .,dXWMMXc.
+               ,0MMMMMMXd,.      .,dXMMMMMM0,
+              .:KMMMMMMMWXd,.  .,dXWMMMMMMMK:.
+               .,dXMMMMMMMMXdccdXMMMMMMMMXd,.
+                 .,dXWMMMMMMMWWMMMMMMMWXd,.
+   ...,coo:.       .,dXMMMMMMMMMMMMMMXd,.       .:ooc,...
+.'lxOKNWMMNk:.       .;OWMMMMMMMMMMWO;.       .:kNMMWNKOxl'.
+ .l0WMMMMMMMNO:.    .,dXMMMMMMMMMMMMXd,.    .:kNMMMMMMMW0l.
+  ..l0WMMMMMMMNk:..,dXMMMMMMMMMMMMMMMMXd,..:kNMMMMMMMW0l..
+    ..l0WMMMMMMMNOkXWMMMMMMMX00XMMMMMMMWXkONMMMMMMMW0l..
+      ..l0WMMMMMMMMMMMMMMMXd,..,dXMMMMMMMMMMMMMMMW0l..
+        ..l0WMMMMMMMMMMMXd,.    .,dXMMMMMMMMMMMW0l..
+          ..l0WMMMMMMWXd,.        .,dXWMMMMMMW0l..
+            ..l0WMMMXd,.            .,dXMMMW0l..
+               .l0Kd,.                .,dK0l.
+                ....                    ....
+EOF
+	    ;;
+
         "Xubuntu"*)
             set_colors 4 7 1
             read -rd '' ascii_data <<'EOF'
