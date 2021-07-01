@@ -4714,6 +4714,12 @@ color() {
     case $1 in
         [0-6])    printf '%b\e[3%sm'   "$reset" "$1" ;;
         7 | "fg") printf '\e[37m%b'    "$reset" ;;
+        "#"*)
+            local rgb="${1//#}"
+            rgb="$((0x$rgb))"
+            printf '\e[38;2;%b;%b;%bm' "$(($rgb >> 16))" "$((($rgb >> 8) & 0xff))" "$(($rgb & 0xff))"
+        ;;
+
         *)        printf '\e[38;5;%bm' "$1" ;;
     esac
 }
