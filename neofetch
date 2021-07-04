@@ -39,7 +39,7 @@ sys_locale=${LANG:-C}
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-${HOME}/.config}
 PATH=$PATH:/usr/xpg4/bin:/usr/sbin:/sbin:/usr/etc:/usr/libexec
 reset='\e[0m'
-shopt -s nocasematch
+shopt -s nocasematch extglob
 
 # Speed up script by not using unicode.
 LC_ALL=C
@@ -4042,6 +4042,26 @@ image_backend() {
     [[ "$image_backend" != "off" ]] && printf '\e[%sA\e[9999999D' "${lines:-0}"
 }
 
+# From pull request #1220, this is a fast way to strip character codes
+strip_escape_codes() {
+    local input="${1//\"/\\\"}" output="" i char within_code=0
+    for ((i=0; i < ${#input}; ++i)); do
+        char="${input:i:1}"
+        if (( within_code == 1 )); then
+            case "${char}" in
+                [a-zA-Z]) within_code=0 ;;
+            esac
+            continue
+        fi
+        if [[ "${char}" == $'\e' ]]; then
+            within_code=1
+            continue
+        fi
+        output+="${char}"
+    done
+    eval "$2=\"${output}\""
+}
+
 print_ascii() {
     if [[ -f "$image_source" && ! "$image_source" =~ (png|jpg|jpeg|jpe|svg|gif) ]]; then
         ascii_data="$(< "$image_source")"
@@ -4056,8 +4076,12 @@ print_ascii() {
 
     # Calculate size of ascii file in line length / line count.
     while IFS=$'\n' read -r line; do
-        line=${line//\\\\/\\}
         line=${line//█/ }
+        # Fast method to strip codes
+        strip_escape_codes "${line}" line
+        # Use patterns to replace color codes that the above line did not catch
+        line=${line//\\033\[*([0-9;])[JKmsu]/}
+        line=${line//\[*([0-9;])[JKmsu]/}
         ((++lines,${#line}>ascii_len)) && ascii_len="${#line}"
     done <<< "${ascii_data//\$\{??\}}"
 
