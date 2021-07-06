@@ -1583,7 +1583,8 @@ get_packages() {
             has kagami  && dir "/var/lib/kagami/pkgs/*"
             has cave    && dir "/var/db/paludis/repositories/cross-installed/*/data/*/ \
                                /var/db/paludis/repositories/installed/data/*/"
-            shopt -u nullglob
+            has hardman && dir "/var/hpkg/packages/*"
+	    shopt -u nullglob
             }
 
             # Other (Needs complex command)
@@ -5127,7 +5128,7 @@ ASCII:
     --ascii_colors x x x x x x  Colors to print the ascii art
     --ascii_distro distro       Which Distro's ascii art to print
 
-                                NOTE: AIX, Hash, Alpine, AlterLinux, Amazon, Anarchy, Android,
+                                NOTE: AIX, Hash, HarDClanZ, Alpine, AlterLinux, Amazon, Anarchy, Android,
                                 instantOS, Antergos, antiX, \"AOSC OS\", \"AOSC OS/Retro\",
                                 Apricity, ArchCraft, ArcoLinux, ArchBox, ARCHlabs, ArchStrike,
                                 XFerience, ArchMerge, Arch, Artix, Arya, Bedrock, Bitrig,
@@ -5569,6 +5570,30 @@ ${c1}
     ###   ######   ###
       ~   ######   ~
 
+EOF
+        ;;
+        "HarDClanZ"*)
+            set_colors 4 7 1
+            read -rd '' ascii_data <<'EOF'
+${c1}          ........::::....
+        ::################::..
+      :########################:.
+     :######**###################:
+    :###${c2}&&&&^${c1}############ ${c2}&${c1}#######:
+   :#${c2}&&&&&${c1}.:##############:${c2}^&o${c1}`:###:
+  :#${c2}&&&&${c1}.:#################:.${c2}&&&${c1}`###:
+ :##${c2}&^${c1}:######################:${c2}^&&${c1}::##:
+ :#############################:${c2}&${c1}:##::
+ :##########${c2}@@${c1}###########${c2}@@${c1}#####:.###:
+:#########${c2}@@${c3}o${c2}@@${c1}#########${c2}@@${c3}o${c2}@@${c1}########:
+:#######:${c2}@@${c3}o${c5}0${c3}o${c2}@@@@${c1}###${c2}@@@@${c3}o${c5}0${c3}o${c2}@@${c1}######: :
+ :######:${c2}@@@${c3}o${c2}@@@@@@${c1}V${c2}@@@@@@${c3}o${c2}@@@${c1}######:
+   :#####:${c2}@@@@@@@@@@@@@@@@@@@${c1}:####;
+    :####:.${c2}@@@@@@@@@@@@@@@@${c1}:#####:
+    `:####:.${c2}@@@@@@@@@@@@@@${c1}:#####:
+      ``:##:.${c2}@@@@@@@@@@@@${c1}^## # : 
+         : ##  ${c2}\@@@;@@@/ ${c1}:: # : 
+                 ${c2} VVV
 EOF
         ;;
 
