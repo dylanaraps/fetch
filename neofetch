@@ -804,7 +804,7 @@ image_source="auto"
 #       Rocky, Rosa, sabotage, Sabayon, Sailfish, SalentOS, Scientific, Septor,
 #       SereneLinux, SharkLinux, Siduction, SkiffOS, Slackware, SliTaz, SmartOS,
 #       Solus, Source_Mage, Sparky, Star, SteamOS, SunOS, openSUSE_Leap, t2,
-#       openSUSE_Tumbleweed, openSUSE, SwagArch, Tails, Trisquel,
+#       openSUSE_Tumbleweed, openSUSE, SwagArch, Tails, TorizonCore, Trisquel,
 #       Ubuntu-Cinnamon, Ubuntu-Budgie, Ubuntu-GNOME, Ubuntu-MATE,
 #       Ubuntu-Studio, Ubuntu, Univention, Venom, Void, semc, Obarun,
 #       windows10, Windows7, Xubuntu, Zorin, and IRIX have ascii logos.
@@ -5152,8 +5152,8 @@ ASCII:
                                 sabotage, Sabayon, Sailfish, SalentOS, Scientific, Septor,
                                 SereneLinux, SharkLinux, Siduction, Slackware, SliTaz, SmartOS,
                                 Solus, Source_Mage, Sparky, Star, SteamOS, SunOS, openSUSE_Leap,
-                                t2, openSUSE_Tumbleweed, openSUSE, SwagArch, Tails, Trisquel,
-                                Ubuntu-Cinnamon, Ubuntu-Budgie, Ubuntu-GNOME, Ubuntu-MATE,
+                                t2, openSUSE_Tumbleweed, openSUSE, SwagArch, Tails, TorizonCore,
+                                Trisquel, Ubuntu-Cinnamon, Ubuntu-Budgie, Ubuntu-GNOME, Ubuntu-MATE,
                                 Ubuntu-Studio, Ubuntu, Univention, Venom, Void, semc, Obarun,
                                 windows10, Windows7, Xubuntu, Zorin, and IRIX have ascii logos.
 
@@ -10747,6 +10747,41 @@ Nsyh+-..+y+-   yMMMMd   :mMM+
          -oNMMMMMMMMMMmy+.`
            `:yNMMMds/.`
               .//`
+EOF
+        ;;
+
+        "TorizonCore"*)
+            set_colors fg 3 4 8 5
+            read -rd '' ascii_data <<'EOF'
+${c2}                          `.::-.
+                       `-://////:-.
+                     `:////////////:.
+                `.-.`  `-:///////-.     `
+             `.://///:.`  `-::-.     `-://:.`
+           .:///////////:.        `-:////////:.`
+           `.://///////:-`       .:////////////:`
+    `.-/:-`   `.:///:-`    ${c3}`-+o/.${c2}  `.://////-.     `.`
+ `.:///////:-`   `.`    ${c3}`-+sssssso/.${c2}  `.--.     `-:///:-`
+-/////////////:       ${c3}`+sssssssssssso-${c2}       `-://///////:-`
+  .-///////:.`    ``    ${c3}-/sssssssso/.${c2}    `   .:///////////-.
+     .-::.`    `-://:-.    ${c3}-/sso/.${c2}    `.:/:-.  `.://///-.
+            `-:////////:-.    ${c3}`${c2}    `.:////////-.  `.-.
+${c1}o-${c2}          -:///////////:`       .:////////////:`        ${c1}-o${c2}
+${c1}hdho-${c2}         `-://///:.`    `..`   `-://////:.`       ${c1}-ohdh${c2}
+${c1}/ydddho-${c2}         `--.`    `.:////:.`   `-::.`       ${c1}-ohdddy/${c2}
+  ${c1}./ydddho:`${c2}           `.://////////:.          ${c1}`:ohdddy/.${c2}
+`    ${c1}`/shddho:`${c2}        `.://////////:.       ${c1}`:ohddds/`${c2}    `
+::-`    ${c1}`/shddhs:`${c2}        `.:////:.`      ${c1}`:shddhs/`${c2}    `-::
+:///:-`    ${c1}`:shddhs/`${c2}        `..`      ${c1}`/shddhs:`${c2}    `-:///-
+ `.:///:-`    ${c1}`:ohddhs/`${c2}            ${c1}`/shddho:`${c2}    `-:///:.`
+    `.:///:-.     ${c1}-ohdddy/.${c2}      ${c1}./ydddho-${c2}     .-:///-.`
+       `.:///:-.     ${c1}-+hdddy+//+ydddh+-${c2}     .-://:-.
+          `.-///:-.     ${c1}-+yddddddy+-${c2}     .-://:-.
+              .-://:-.     ${c1}./++/.${c2}     .-///:-.
+                 .-:///:.`        `.:///:-`
+                    `-:///:.````.:///:-`
+                       `-:////////:-`
+                          `-::::-`
 EOF
         ;;
 
