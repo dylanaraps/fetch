@@ -3314,6 +3314,10 @@ get_term() {
                 break
             ;;
 
+            "."*"-wrap"*)
+                [[ $name =~ \.(.*)-wrap.* ]] && term=${BASH_REMATCH[1]}
+            ;;
+
             "gnome-terminal-") term="gnome-terminal" ;;
             "urxvtd")          term="urxvt" ;;
             *"nvim")           term="Neovim Terminal" ;;
@@ -3572,13 +3576,24 @@ END
             [[ -f "${XDG_CONFIG_HOME}/termite/config" ]] && \
                 termite_config="${XDG_CONFIG_HOME}/termite/config"
 
+            XDG_DIR="/etc/xdg"
+            OLD_IFS=$IFS
+            IFS=":"
+            for directory in $XDG_CONFIG_DIRS; do
+                if [[ -f "$directory/termite/config" ]]; then
+                    XDG_DIR="$directory"
+                    break
+                fi
+            done
+            IFS=$OLD_IFS
+
             term_font="$(awk -F '= ' '/\[options\]/ {
                                           opt=1
                                       }
                                       /^\s*font/ {
                                           if(opt==1) a=$2;
                                           opt=0
-                                      } END {print a}' "/etc/xdg/termite/config" \
+                                      } END {print a}' "$XDG_DIR/termite/config" \
                          "$termite_config")"
         ;;
 
