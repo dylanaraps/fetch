@@ -1327,7 +1327,11 @@ get_model() {
         ;;
 
         BSD|MINIX)
-            model=$(sysctl -n hw.vendor hw.product)
+            if [[ $(uname -s) = "FreeBSD" ]]; then
+                model=$(kenv smbios.system.version)
+            else
+                model=$(sysctl -n hw.vendor hw.product)
+            fi
         ;;
 
         Windows)
