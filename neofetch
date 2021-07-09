@@ -2483,19 +2483,27 @@ get_cpu() {
 get_gpu() {
     case $os in
         "Linux")
-            # Read GPUs into array.
-            gpu_cmd="$(lspci -mm |
-                       awk -F '\"|\" \"|\\(' \
-                              '/"Display|"3D|"VGA/ {
-                                  a[$0] = $1 " " $3 " " ($7 ~ /^$|^Device [[:xdigit:]]+$/ ? $4 : $7)
-                              }
-                              END { for (i in a) {
-                                  if (!seen[a[i]]++) {
-                                      sub("^[^ ]+ ", "", a[i]);
-                                      print a[i]
-                                  }
-                              }}')"
+            if [[ -f "${cache_dir}/neofetch/gpu" ]]; then
+                gpu_cmd="$(cat ${cache_dir}/neofetch/gpu)"
+            
+            else
+                # Read GPUs into array.
+                gpu_cmd="$(lspci -mm |
+                        awk -F '\"|\" \"|\\(' \
+                                '/"Display|"3D|"VGA/ {
+                                    a[$0] = $1 " " $3 " " ($7 ~ /^$|^Device [[:xdigit:]]+$/ ? $4 : $7)
+                                }
+                                END { for (i in a) {
+                                    if (!seen[a[i]]++) {
+                                        sub("^[^ ]+ ", "", a[i]);
+                                        print a[i]
+                                    }
+                                }}')"
+            fi
+
             IFS=$'\n' read -d "" -ra gpus <<< "$gpu_cmd"
+
+            cache_arr "gpu" "${gpus[@]}"
 
             # Remove duplicate Intel Graphics outputs.
             # This fixes cases where the outputs are both
@@ -3923,8 +3931,16 @@ get_locale() {
 get_gpu_driver() {
     case $os in
         "Linux")
-            gpu_driver="$(lspci -nnk | awk -F ': ' \
-                          '/Display|3D|VGA/{nr[NR+2]}; NR in nr {printf $2 ", "; exit}')"
+            if [[ -f "${cache_dir}/neofetch/gpu_driver" ]]; then
+                source "${cache_dir}/neofetch/gpu_driver"
+
+            else
+                gpu_driver="$(lspci -nnk | awk -F ': ' \
+                              '/Display|3D|VGA/{nr[NR+2]}; NR in nr {printf $2 ", "; exit}')"
+
+                cache "gpu_driver" "$gpu_driver"
+            fi
+            
             gpu_driver="${gpu_driver%, }"
 
             if [[ "$gpu_driver" == *"nvidia"* ]]; then
@@ -4807,6 +4823,20 @@ cache() {
     if [[ "$2" ]]; then
         mkdir -p "${cache_dir}/neofetch"
         printf "%s" "${1/*-}=\"$2\"" > "${cache_dir}/neofetch/${1/*-}"
+    fi
+}
+
+cache_arr() {
+    if [[ "$2" ]]; then
+        name=$1
+        shift
+
+        mkdir -p "${cache_dir}/neofetch"
+        > "${cache_dir}/neofetch/${name/*-}"
+        
+        for line in "$@"; do
+            printf "$line\n" >> "${cache_dir}/neofetch/${name/*-}"
+        done
     fi
 }
 
