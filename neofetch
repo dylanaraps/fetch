@@ -73,6 +73,7 @@ print_info() {
     info "CPU" cpu
     info "GPU" gpu
     info "Memory" memory
+    info "Network" network
 
     # info "GPU Driver" gpu_driver  # Linux/macOS only
     # info "Disk" disk
@@ -2806,6 +2807,49 @@ get_memory() {
     esac
 }
 
+get_network() {
+    case $os in
+        "Linux")
+            while IFS= read -r i; do
+                # List all operational, physical devices
+                if [ "$(cat "$i/operstate")" = "up" ] && [ -e "$i/device" ]; then
+                    if [ ! -e "$i/phy80211" ]; then
+                        networks+="$(cat "$i/speed")"
+                    else
+                        networks+="Wifi"
+                        phy="$(cat "$i/phy80211/name")"
+                        (iw "$phy" info | grep -qF 'VHT Capabilities') && networks+='6'
+                    fi
+                    networks+=$'\n'
+                fi
+            done < <(find /sys/class/net/ -type l)
+        ;;
+    esac
+    while IFS=' ' read -r n i; do
+        if [ -n "$i" ]; then
+            [ "$n" -gt 1 ] && network+="${n}x "
+            if [ "$i" = "Wifi" ]; then
+                network+="Wifi; "
+            elif [ "$i" = "Wifi6" ]; then
+                network+="Wifi6; "
+            elif [ "$i" = "-1" ]; then
+                network+="Unknown; "
+            elif [ "${i%000}" = "$i" ]; then
+                network+="$i Mbps; "
+            elif [ "$i" = "2500" ]; then
+                network+="2.5 Gbps; "
+            else
+                network+="${i%000} Gbps; "
+            fi
+        fi
+    done < <(sort -rn <<<"$networks" | uniq -c)
+    if [ -z "$network" ]; then
+        network="None"
+    else
+        network="${network%; }"
+    fi
+}
+
 get_song() {
     players=(
         "amarok"
@@ -5454,6 +5498,7 @@ get_args() {
                     info "GPU" gpu
                     info "GPU Driver" gpu_driver
                     info "Memory" memory
+                    info "Network" network
 
                     info "Disk" disk
                     info "Battery" battery
