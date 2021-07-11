@@ -783,7 +783,7 @@ image_source="auto"
 # NOTE: AIX, Hash, Alpine, AlterLinux, Amazon, AmogOS, Anarchy, Android, instantOS,
 #       Antergos, antiX, "AOSC OS", "AOSC OS/Retro", Apricity, ArchCraft,
 #       ArcoLinux, ArchBox, ARCHlabs, ArchStrike, XFerience, ArchMerge, Arch,
-#       Artix, Arya, Bedrock, Bitrig, BlackArch, BLAG, BlankOn, BlueLight,
+#       Artix, Arya, Bedrock, Bitrig, BlackArch, blackPanther OS, BLAG, BlankOn, BlueLight,
 #       bonsai, BSD, BunsenLabs, Calculate, Carbs, CentOS, Chakra, ChaletOS,
 #       Chapeau, Chrom*, Cleanjaro, ClearOS, Clear_Linux, Clover, Condres,
 #       Container_Linux, CrystalUX, CRUX, Cucumber, dahlia, Debian, Deepin,
@@ -5131,8 +5131,8 @@ ASCII:
                                 instantOS, Antergos, antiX, \"AOSC OS\", \"AOSC OS/Retro\",
                                 Apricity, ArchCraft, ArcoLinux, ArchBox, ARCHlabs, ArchStrike,
                                 XFerience, ArchMerge, Arch, Artix, Arya, Bedrock, Bitrig,
-                                BlackArch, BLAG, BlankOn, BlueLight, bonsai, BSD, BunsenLabs,
-                                Calculate, Carbs, CentOS, Chakra, ChaletOS, Chapeau, Chrom,
+                                BlackArch, \"blackPanther OS\", BLAG, BlankOn, BlueLight, bonsai, BSD,
+                                BunsenLabs, Calculate, Carbs, CentOS, Chakra, ChaletOS, Chapeau, Chrom,
                                 Cleanjaro, ClearOS, Clear_Linux, Clover, Condres, Container_Linux,
                                 CrystalUX, CRUX, Cucumber, dahlia, Debian, Deepin, DesaOS, Devuan,
                                 DracOS, DarkOs, Itc, DragonFly, Drauger, Elementary, EndeavourOS, Endless,
@@ -6336,6 +6336,36 @@ ${c2}        .oossssso-`${c3}//${c1}`/ossssss+`
 EOF
         ;;
 
+        "blackPanther"*|'blackpanther'*)
+            set_colors 1 11 12
+            read -rd '' ascii_data <<'EOF'
+${c3} 
+                         ........
+                  .,»╔╗╗╬▄▄╫█▀▓▄▄╬╗╗g≈,.
+               ,j╗╬╣▓▓███████▌;»╙▀▀▀▀█▄▄╗j,
+            .≈╗╬▓██▀▀▀▀▀╠╙░░»»;:`${c2}``>${c1}▄ ${c3}▐ ▓╫╗⌂,
+          .j╬▓█▀▒░░░░░░░░░»»»;:````      ╙▀█▌╬░,
+         ;╗▓█▄▄███████▀░░»»»»;```` ╓▄▄█▄▄φ  ██▌Ñ>.
+       .j╣█████▀▀░░░░░░░░»»╓▄▄¿``▄███████/▄████▓╬U.
+      .j╣▓██▀ÜÑ╦╦░░░░░░▐█@▄████⌐▐███████████████▓╬H.
+      «╫▓█▀░ÑÑ╩╦░░░░░░░░▀██████M"▀███████████████▓╫░
+     :]╣█▌ÑÑÑÑ▄▄██▀░░░░»»██████████████████████████Ñ~
+     »╫▓█╫ÑÑ▄███▀░░░░░»»▐██████████████████████████▌░
+    `j╣█▌Ñ╬████░░░░░░░»»▐████████████████████████▌▐█U`
+    `/╫█▌▄███▌░░░░░░░»»»;▀██████████████▀████████w▐█░`
+     ;╟█▌███▌░░░░░░░▄▄»»;:`▀▀████████▀Ü▄████████▌ ▐▌>`
+     `]▓████░░░░░░░░██⌂;:````╓▄▄µp╓▄▄██████████▀ ,█M`
+      "╠╣██▌░░░░░░░»██▌;````  ╙▀██████████████M  █▀"
+       "╟╣█░░░░░░░░»███⌂```      ▐▀████████▀░   █▌░`
+        "╩█▄░░░░░░»»▀███ ``           └└`     ,█▀"`
+         `░▀█▄░░░»»»»████@                  .▄█Ü`
+           `╙▀█▄@»»»;`▀███▌¿              ,▄▀Ñ"`
+             `"╨▀█▄▄▄░`▐█████▄,       ,▄▄▀▀░`
+                `"╙╩▀▀▀▀████████▓▌▌▌▀▀▀╨"``
+                    ``""░╚╨╝╝╝╝╨╨░""``
+     
+EOF
+        ;;
         "BLAG"*)
             set_colors 5 7
             read -rd '' ascii_data <<'EOF'
