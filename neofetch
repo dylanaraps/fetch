@@ -1661,12 +1661,25 @@ get_packages() {
                 MSYS*)   has pacman   && tot pacman -Qq --color never ;;
             esac
 
+            ProgramData=$(cygpath --folder 0x0023 2>/dev/null)
+            if [[ -z "$ProgramData" ]]; then
+              mount=$(awk '/^C:\s/ {print $2}' /proc/mounts 2>/dev/null)
+              ProgramData="${mount:-/cygdrive/c}/ProgramData"
+            fi
+
             # Scoop environment throws errors if `tot scoop list` is used
-            has scoop && pkgs_h=1 dir ~/scoop/apps/* && ((packages-=1))
+            has scoop && {
+              sdir=$(cygpath "${SCOOP}" 2>/dev/null)
+              sdir="${sdir:-~/scoop}"
+              pkgs_h=1 dir "${sdir}/apps/*" && ((packages-=1))
+              manager=scoop-global
+              sdir=$(cygpath "${SCOOP_GLOBAL}" 2>/dev/null)
+              sdir="${sdir:-$ProgramData/scoop}"
+              dir "${sdir}/apps/*"
+            }
 
             # Count chocolatey packages.
-            [[ -d /cygdrive/c/ProgramData/chocolatey/lib ]] && \
-                dir /cygdrive/c/ProgramData/chocolatey/lib/*
+            has choco && dir "$ProgramData/chocolatey/lib/*"
         ;;
 
         Haiku)
