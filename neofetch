@@ -389,6 +389,16 @@ gtk2="on"
 # off: 'Numix [GTK2]'
 gtk3="on"
 
+# Enable/Disable Qt Theme / Icons / Font
+#
+# Default: 'on'
+# Values:  'on', 'off'
+# Flag:    --qt
+#
+# Example:
+# on:  'Breeze [Qt], Arc [GTK3]'
+# off: 'Arc [GTK3]'
+qt="on"
 
 # IP Address
 
@@ -1800,6 +1810,7 @@ get_de() {
 
             elif [[ $DESKTOP_SESSION ]]; then
                 de=${DESKTOP_SESSION##*/}
+                de=${de/trinity/Trinity}
 
             elif [[ $GNOME_DESKTOP_SESSION_ID ]]; then
                 de=GNOME
@@ -2067,9 +2078,9 @@ get_wm_theme() {
 
         Openbox)
             case $de in
-                LXDE*) ob_file=lxde-rc ;;
-                LXQt*) ob_file=lxqt-rc ;;
-                    *) ob_file=rc ;;
+                LXDE*) ob_file="lxde-rc" ;;
+                LXQt*) ob_file="lxqt-rc" ;;
+                    *) ob_file="rc" ;;
             esac
 
             ob_file=$XDG_CONFIG_HOME/openbox/$ob_file.xml
@@ -3111,7 +3122,7 @@ get_resolution() {
 
 get_style() {
     # Fix weird output when the function is run multiple times.
-    unset gtk2_theme gtk3_theme theme path
+    unset qt_theme gtk2_theme gtk3_theme theme path
 
     if [[ "$DISPLAY" && $os != "Mac OS X" && $os != "macOS" ]]; then
         # Get DE if user has disabled the function.
@@ -3127,15 +3138,9 @@ get_style() {
 
                 if [[ -f "${kde_config_dir}/kdeglobals" ]]; then
                     kde_config_file="${kde_config_dir}/kdeglobals"
-
-                    kde_theme="$(grep "^${kde}" "$kde_config_file")"
-                    kde_theme="${kde_theme/*=}"
-                    if [[ "$kde" == "font" ]]; then
-                        kde_font_size="${kde_theme#*,}"
-                        kde_font_size="${kde_font_size/,*}"
-                        kde_theme="${kde_theme/,*} ${kde_theme/*,} ${kde_font_size}"
-                    fi
-                    kde_theme="$kde_theme [$de], "
+                    qt_theme="$(grep "^${kde}" "$kde_config_file")"
+                    qt_theme="${qt_theme/*=}"
+                    
                 else
                     err "Theme: KDE config files not found, skipping."
                 fi
@@ -3167,6 +3172,32 @@ get_style() {
                 type -p xfconf-query >/dev/null && \
                     gtk2_theme="$(xfconf-query -c xsettings -p "$xfconf")"
             ;;
+            
+            "Trinity")
+                tde_config_dir
+                
+                if [[ -f "${tde_config_dir}/kdeglobals" ]]; then
+                    tde_config_file="${tde_config_dir}/kdeglobals"
+                    qt_theme="$(grep "^${kde}" "$tde_config_file")"
+                    qt_theme="${qt_theme/*=}"
+                    
+                else
+                    err "Theme: TDE config files not found, skipping."
+                fi
+            ;;
+            
+            "LXQt"*)
+                shopt -s nullglob
+                if ! qt_theme=$(awk -F "=" -v r="^$lxqt" '
+                    $1~r { theme=$2 } 
+                    END { print theme }
+                ' {/etc/xdg,/etc/xdg/*,"$XDG_CONFIG_HOME"}/lxqt/lxqt.con?); then
+                    err "Theme: Can't read LXQt config files. Unsetting Qt theme."
+                    unset qt_theme
+                fi
+                shopt -u nullglob
+            ;;
+            
         esac
 
         # Check for general GTK2 Theme.
@@ -3206,42 +3237,106 @@ get_style() {
             gtk3_theme="${gtk3_theme/${name}*=}"
         fi
 
+        # Handle Qt5ct platform theme
+        if [[ "$QT_QPA_PLATFORMTHEME" == 'qt5ct' && -f "${XDG_CONFIG_HOME}/qt5ct/qt5ct.conf" ]]; then
+            qt_theme="$(grep "^${qt5ct}" "${XDG_CONFIG_HOME}/qt5ct/qt5ct.conf")"
+            qt_theme="${qt_theme/*=}"
+            # Reformat font, since qt5ct stores fonts in binary format
+            if [[ "$qt5ct" == "general" ]]; then
+                # Trim quotes and parentheses
+                qt_theme="${qt_theme#'"'}"
+                qt_theme="${qt_theme%'"'}"
+                qt_theme="${qt_theme#@Variant(}"
+                qt_theme="${qt_theme%)}"
+                
+                # Read font name
+                qt5ct_font_name="${qt_theme#*@}"
+                qt5ct_font_name="${qt5ct_font_name%%@*}"
+                # Interpret backslashes
+                qt5ct_font_name="$(printf "%b" "$qt5ct_font_name")"
+                qt5ct_font_name="${qt5ct_font_name//[[:cntrl:]]}" # trim control characters 
+                
+                # Get font size
+                # Tread carefully, Qt sometimes uses @ in binary data
+                local pre_size="${qt_theme#*@}"
+                local pre_size="${pre_size#*@}"
+                # Need to declare array and manually handle the second byte
+                # (workaround for `od` without --endian)
+                IFS=' ' local raw_size=( $(printf "%b" "${pre_size}" | od -An -tu1 -N2) )
+                # Split the upper 4 bits (exponent) the lower 12.
+                local lowers=$(( ((raw_size[0]%16)<<8) + (raw_size[1]) ))
+                local upper4=$((raw_size[0]>>4 ))
+                qt5ct_font_size=$(( (2**(upper4+1)) + (lowers>>(11-upper4)) ))
+                
+                qt_theme="$qt5ct_font_name, $qt5ct_font_size"
+            fi
+        fi
+
+        # Forced Qt theme through environment variables - Apply only if handling widget style!
+        [[ "$kde" == "widgetStyle" && "$qt_theme" ]] && qt_theme="${QT_STYLE_OVERRIDE:-"$qt_theme"}"
+        
+        # Reformat Qt fonts
+        if [[ "$kde" == "font" && "$qt_theme" ]]; then
+            qt_font_size="${qt_theme#*,}"
+            qt_font_size="${qt_font_size/,*}"
+            qt_theme="${qt_theme/,*}, ${qt_font_size}"
+        fi
+
         # Trim whitespace.
         gtk2_theme="$(trim "$gtk2_theme")"
         gtk3_theme="$(trim "$gtk3_theme")"
+        qt_theme="$(trim "$qt_theme")"
 
         # Remove quotes.
         gtk2_theme="$(trim_quotes "$gtk2_theme")"
         gtk3_theme="$(trim_quotes "$gtk3_theme")"
+        qt_theme="$(trim_quotes "$qt_theme")"
+
+        # Handle Qt theme engines that load external themes
+        case "$qt_theme" in
+            'Kvantum')
+                if kvantum_theme="$(grep '^theme' "${XDG_CONFIG_HOME}/Kvantum/kvantum.kvconfig")"; then
+                    qt_theme="$kvantum_theme"
+                    qt_theme="${qt_theme/*=}"
+                fi
+                ;;
+            *'gtk2')
+                qt_theme="$gtk2_theme"
+                ;;
+        esac
 
         # Toggle visibility of GTK themes.
         [[ "$gtk2" == "off" ]] && unset gtk2_theme
         [[ "$gtk3" == "off" ]] && unset gtk3_theme
+        [[ "$qt"  ==  "off" ]] && unset qt_theme
 
         # Format the string based on which themes exist.
-        if [[ "$gtk2_theme" && "$gtk2_theme" == "$gtk3_theme" ]]; then
-            gtk3_theme+=" [GTK2/3]"
-            unset gtk2_theme
-
-        elif [[ "$gtk2_theme" && "$gtk3_theme" ]]; then
-            gtk2_theme+=" [GTK2], "
-            gtk3_theme+=" [GTK3] "
-
-        else
-            [[ "$gtk2_theme" ]] && gtk2_theme+=" [GTK2] "
-            [[ "$gtk3_theme" ]] && gtk3_theme+=" [GTK3] "
-        fi
+        # append_theme theme toolkit
+        append_theme() {
+            if [[ "$1" ]]; then
+                if [[ "$1" == "$cur_theme" ]]; then
+                    theme+="/$2"
+                else
+                    theme+="], $1 [$2"
+                    cur_theme="$1"
+                fi
+            fi
+        }
+        theme=''
+        local cur_theme=''
+        append_theme "$qt_theme" 'Qt'
+        append_theme "$gtk2_theme" 'GTK2'
+        append_theme "$gtk3_theme" 'GTK3'
 
         # Final string.
-        theme="${kde_theme}${gtk2_theme}${gtk3_theme}"
+        theme+=']'
+        theme="${theme#'], '}"
+        theme="${theme/'GTK2/GTK3'/'GTK2/3'}"
         theme="${theme%, }"
 
         # Make the output shorter by removing "[GTKX]" from the string.
         if [[ "$gtk_shorthand" == "on" ]]; then
-            theme="${theme// '[GTK'[0-9]']'}"
-            theme="${theme/ '[GTK2/3]'}"
-            theme="${theme/ '[KDE]'}"
-            theme="${theme/ '[Plasma]'}"
+            theme="${theme// '['*']'}"
         fi
     fi
 }
@@ -3251,7 +3346,10 @@ get_theme() {
     gsettings="gtk-theme"
     gconf="gtk_theme"
     xfconf="/Net/ThemeName"
-    kde="Name"
+    kde="widgetStyle"
+    lxqt="style"
+    qt5ct="style=" # There is a property called 'stylesheets'.
+
 
     get_style
 }
@@ -3262,6 +3360,9 @@ get_icons() {
     gconf="icon_theme"
     xfconf="/Net/IconThemeName"
     kde="Theme"
+    lxqt="icon_theme"
+    qt5ct="icon_theme"
+
 
     get_style
     icons="$theme"
@@ -3273,6 +3374,8 @@ get_font() {
     gconf="font_theme"
     xfconf="/Gtk/FontName"
     kde="font"
+    lxqt="font"
+    qt5ct="general"
 
     get_style
     font="$theme"
@@ -4831,7 +4934,7 @@ kde_config_dir() {
 
     elif type -p kde-config &>/dev/null; then
         kde_config_dir="$(kde-config --path config)"
-
+    
     elif [[ -d "${HOME}/.kde4" ]]; then
         kde_config_dir="${HOME}/.kde4/share/config"
 
@@ -4840,6 +4943,21 @@ kde_config_dir() {
     fi
 
     kde_config_dir="${kde_config_dir/$'/:'*}"
+}
+
+tde_config_dir() {
+    if [[ "$tde_config_dir" ]]; then
+        return
+    
+    elif type -p tde-config &>/dev/null; then
+        tde_config_dir="$(tde-config --path config)"
+    
+    elif [[ -d "${HOME}/.configtde" ]]; then
+        tde_config_dir="${HOME}/.configtde"
+    
+    fi
+    
+    tde_config_dir="${tde_config_dir/$'/:'*}"
 }
 
 term_padding() {
@@ -5249,6 +5367,7 @@ get_args() {
             "--gtk_shorthand") gtk_shorthand="$2" ;;
             "--gtk2") gtk2="$2" ;;
             "--gtk3") gtk3="$2" ;;
+            "--qt")     qt="$2" ;;
             "--shell_path") shell_path="$2" ;;
             "--shell_version") shell_version="$2" ;;
             "--ip_host") public_ip_host="$2" ;;
